@@ -1,0 +1,250 @@
+{
+  "name": "Slack Message Router",
+  "nodes": [
+    {
+      "name": "Slack Trigger",
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "parameters": {
+        "event": "message",
+        "channel": "C01234ABCDE"
+      }
+    },
+    {
+      "name": "Extract Message",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [450, 300],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "message_text",
+              "value": "={{ $json.event.text }}"
+            },
+            {
+              "name": "user_id",
+              "value": "={{ $json.event.user }}"
+            },
+            {
+              "name": "channel_id",
+              "value": "={{ $json.event.channel }}"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{ $json.event.ts }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "LLM Classifier",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [650, 300],
+      "parameters": {
+        "model": "gpt-5.5",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a message classifier for a company support system. Classify each message into exactly one of these categories:\n\n- BILLING: Payment issues, invoices, pricing questions\n- TECHNICAL: Bug reports, feature requests, integration help\n- SALES: New customer inquiries, demo requests, partnership opportunities\n- URGENT: System outages, security issues, data breaches\n- OTHER: General inquiries, feedback, or uncategorized\n\nRespond with ONLY the category name, nothing else."
+            },
+            {
+              "role": "user",
+              "content": "={{ $json.message_text }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.1,
+          "maxTokens": 50
+        }
+      }
+    },
+    {
+      "name": "Route by Category",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [850, 300],
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.output }}",
+        "rules": [
+          {
+            "value": "BILLING",
+            "outputIndex": 0
+          },
+          {
+            "value": "TECHNICAL",
+            "outputIndex": 1
+          },
+          {
+            "value": "SALES",
+            "outputIndex": 2
+          },
+          {
+            "value": "URGENT",
+            "outputIndex": 3
+          }
+        ],
+        "fallbackOutputIndex": 4
+      }
+    },
+    {
+      "name": "Notify Billing Team",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [1050, 100],
+      "parameters": {
+        "channel": "CBILLING01",
+        "text": "=🚨 Billing Inquiry from <@{{ $json.user_id }}>\n\n\"{{ $json.message_text }}\"\n\n*Timestamp:* {{ $json.timestamp }}\n*Action:* Please respond within 2 hours"
+      }
+    },
+    {
+      "name": "Notify Technical Team",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [1050, 300],
+      "parameters": {
+        "channel": "CTECHSUP01",
+        "text": "=🔧 Technical Issue from <@{{ $json.user_id }}>\n\n\"{{ $json.message_text }}\"\n\n*Timestamp:* {{ $json.timestamp }}\n*Action:* Please respond within 4 hours"
+      }
+    },
+    {
+      "name": "Notify Sales Team",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [1050, 500],
+      "parameters": {
+        "channel": "CSALES01",
+        "text": "=💰 Sales Opportunity from <@{{ $json.user_id }}>\n\n\"{{ $json.message_text }}\"\n\n*Timestamp:* {{ $json.timestamp }}\n*Action:* Please respond within 24 hours"
+      }
+    },
+    {
+      "name": "Notify Urgent Channel",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [1050, 700],
+      "parameters": {
+        "channel": "CURGENT01",
+        "text": "=🚨🚨 URGENT from <@{{ $json.user_id }}>\n\n\"{{ $json.message_text }}\"\n\n*Timestamp:* {{ $json.timestamp }}\n*Action:* Immediate response required!"
+      }
+    },
+    {
+      "name": "Log Unclassified",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 2,
+      "position": [1050, 900],
+      "parameters": {
+        "sheetId": "your-google-sheet-id",
+        "range": "Unclassified!A:D",
+        "options": {
+          "valueInputOption": "USER_ENTERED"
+        },
+        "columns": {
+          "mappingMode": "define
+
+```json
+          "mappingMode": "defineBelow",
+          "values": {
+            "string": [
+              {
+                "name": "timestamp",
+                "value": "={{ $json.timestamp }}"
+              },
+              {
+                "name": "user",
+                "value": "={{ $json.user_id }}"
+              },
+              {
+                "name": "message",
+                "value": "={{ $json.message_text }}"
+              },
+              {
+                "name": "category",
+                "value": "={{ $json.output }}"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Slack Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Message": {
+      "main": [
+        [
+          {
+            "node": "LLM Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM Classifier": {
+      "main": [
+        [
+          {
+            "node": "Route by Category",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Category": {
+      "main": [
+        [
+          {
+            "node": "Notify Billing Team",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify Technical Team",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify Sales Team",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify Urgent Channel",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Unclassified",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

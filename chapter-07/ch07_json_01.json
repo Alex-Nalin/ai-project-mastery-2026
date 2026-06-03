@@ -1,0 +1,16 @@
+// ~/.claude/claude_desktop_config.json
+{
+  "mcpServers": {
+    "knowledge-base": {
+      "command": "python",
+      "args": [
+        "/path/to/mcp_knowledge_server/server.py"
+      ],
+      "env": {
+        "OPENAI_API_KEY": "sk-your-key-here",
+        "KNOWLEDGE_DB_PATH": "/path/to/knowledge_db",
+        "COLLECTION_NAME": "company_knowledge"
+      }
+    }
+  }
+}

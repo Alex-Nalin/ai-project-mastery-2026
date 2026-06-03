@@ -1,0 +1,1 @@
+pip install mcp==0.8.0 httpx==0.28.0

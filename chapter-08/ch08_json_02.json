@@ -1,0 +1,65 @@
+{
+  "name": "AI Email Triage",
+  "nodes": [
+    {
+      "name": "Gmail Trigger",
+      "type": "n8n-nodes-base.gmail",
+      "parameters": {
+        "operation": "get",
+        "filters": {
+          "labelIds": ["INBOX"],
+          "maxResults": 10
+        },
+        "options": {
+          "includeSpamTrash": false
+        }
+      }
+    },
+    {
+      "name": "AI Classifier",
+      "type": "n8n-nodes-base.aiAgent",
+      "parameters": {
+        "model": "claude-mythos-5",
+        "systemPrompt": "You are an email triage specialist...",
+        "input": "={{ $json.body }}",
+        "outputParsing": "json"
+      }
+    },
+    {
+      "name": "Check Processed",
+      "type": "n8n-nodes-base.noOp",
+      "parameters": {},
+      "position": [250, 300]
+    },
+    {
+      "name": "Route by Intent",
+      "type": "n8n-nodes-base.switch",
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.intent }}",
+        "rules": [
+          {
+            "value": "question",
+            "output": 0
+          },
+          {
+            "value": "complaint",
+            "output": 1
+          },
+          {
+            "value": "support",
+            "output": 2
+          },
+          {
+            "value": "sales",
+            "output": 3
+          },
+          {
+            "value": "spam",
+            "output": 4
+          }
+        ]
+      }
+    }
+  ]
+}

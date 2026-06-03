@@ -1,0 +1,307 @@
+{
+  "name": "Production Slack Router",
+  "nodes": [
+    {
+      "name": "Slack Trigger",
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "parameters": {
+        "event": "message",
+        "channel": "C01234ABCDE"
+      }
+    },
+    {
+      "name": "Error Handler",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [250, 100],
+      "parameters
+```json
+      "parameters": {}
+    },
+    {
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [450, 300],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.event.text }}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{ $json.event.user }}",
+              "operation": "isNotEmpty"
+            }
+          ],
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          }
+        },
+        "combineOperation": "and"
+      }
+    },
+    {
+      "name": "Log Invalid Message",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 2,
+      "position": [650, 100],
+      "parameters": {
+        "sheetId": "your-sheet-id",
+        "range": "InvalidMessages!A:D",
+        "options": {
+          "valueInputOption": "USER_ENTERED"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "values": {
+            "string": [
+              {
+                "name": "timestamp",
+                "value": "={{ $json.event.ts }}"
+              },
+              {
+                "name": "user",
+                "value": "={{ $json.event.user }}"
+              },
+              {
+                "name": "raw_payload",
+                "value": "={{ JSON.stringify($json) }}"
+              },
+              {
+                "name": "error",
+                "value": "=Missing required fields"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "Extract Message",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [650, 300],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "message_text",
+              "value": "={{ $json.event.text }}"
+            },
+            {
+              "name": "user_id",
+              "value": "={{ $json.event.user }}"
+            },
+            {
+              "name": "channel_id",
+              "value": "={{ $json.event.channel }}"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{ $json.event.ts }}"
+            },
+            {
+              "name": "thread_ts",
+              "value": "={{ $json.event.thread_ts || $json.event.ts }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "LLM Classifier with Confidence",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [850, 300],
+      "parameters": {
+        "model": "gpt-5.5",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a message classifier. Return ONLY a JSON object with two fields:\n\n{\n  \"category\": \"BILLING|TECHNICAL|SALES|URGENT|OTHER\",\n  \"confidence\": 0.0 to 1.0\n}\n\nCategories:\n- BILLING: Payment issues, invoices, pricing, subscriptions\n- TECHNICAL: Bugs, errors, integrations, feature requests\n- SALES: Demos, trials, purchasing decisions, partnerships\n- URGENT: Outages, security incidents, data loss, P0 issues\n- OTHER: General questions, feedback, or ambiguous messages\n\nIf confidence < 0.7, set category to OTHER."
+            },
+            {
+              "role": "user",
+              "content": "={{ $json.message_text }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.1,
+          "maxTokens": 100,
+          "responseFormat": "json_object"
+        }
+      }
+    },
+    {
+      "name": "Parse Classification",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1050, 300],
+      "parameters": {
+        "language": "javascript",
+        "code": "// Parse the LLM response\nconst raw = $json.output;\nlet classification;\n\ntry {\n  classification = JSON.parse(raw);\n} catch (e) {\n  // Fallback if LLM returns malformed JSON\n  classification = { category: 'OTHER', confidence: 0.0 };\n}\n\n// Validate category\nconst validCategories = ['BILLING', 'TECHNICAL', 'SALES', 'URGENT', 'OTHER'];\nif (!validCategories.includes(classification.category)) {\n  classification.category = 'OTHER';\n}\n\n// Attach to output\nreturn [\n  {\n    json: {\n      ...$json,\n      category: classification.category,\n      confidence: classification.confidence,\n      needs_review: classification.confidence < 0.7\n    }\n  }\n];"
+      }
+    },
+    {
+      "name": "Check Confidence",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1250, 300],
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.confidence }}",
+              "operation": "greaterEqual",
+              "value2": 0.7
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Route High Confidence",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [1450, 200],
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.category }}",
+        "rules": [
+          { "value": "BILLING", "outputIndex": 0 },
+          { "value": "TECHNICAL", "outputIndex": 1 },
+          { "value": "SALES", "outputIndex": 2 },
+          { "value": "URGENT", "outputIndex": 3 }
+        ],
+        "fallbackOutputIndex": 4
+      }
+    },
+    {
+      "name": "Queue for Human Review",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [1450, 500],
+      "parameters": {
+        "channel": "CREVIEW01",
+        "text": "=🤔 *Low Confidence Classification*\n\n*User:* <@{{ $json.user_id }}>\n*Message:* \"{{ $json.message_text }}\"\n*Suggested Category:* {{ $json.category }} ({{ ($json.confidence * 100).toFixed(0) }}%)\n*Timestamp:* {{ $json.timestamp }}\n\nPlease review and reclassify manually."
+      }
+    },
+    {
+      "name": "Notify Billing Team",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [1650, 50],
+      "parameters": {
+        "channel": "CBILLING01",
+        "text": "=💳 *Billing Inquiry* | Confidence: {{ ($json.confidence * 100).toFixed(0) }}%\n\n<@{{ $json.user_id }}> wrote: \"{{ $json.message_text }}\"\n\n*Respond within:* 2 hours\n*Thread:* <{{ $json.thread_ts }}>"
+      }
+    },
+    {
+      "name": "Notify Technical Team",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [1650, 250],
+      "parameters": {
+        "channel": "CTECHSUP01",
+        "text": "=🔧 *Technical Issue* | Confidence: {{ ($json.confidence * 100).toFixed(0) }}%\n\n<@{{ $json.user_id }}> wrote: \"{{ $json.message_text }}\"\n\n*Respond within:* 4 hours\n*Thread:* <{{ $json.thread_ts }}>"
+      }
+    },
+    {
+      "name": "Notify Sales Team",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [1650, 450],
+      "parameters": {
+        "channel": "CSALES01",
+        "text": "=💰 *Sales Opportunity* | Confidence: {{ ($json.confidence * 100).toFixed(0) }}%\n\n<@{{ $json.user_id }}> wrote: \"{{ $json.message_text }}\"\n\n*Respond within:* 24 hours\n*Thread:* <{{ $json.thread_ts }}>"
+      }
+    },
+    {
+      "name": "Notify Urgent Channel",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [1650, 650],
+      "parameters": {
+        "channel": "CURGENT01",
+        "text": "=🚨🚨 *URGENT* | Confidence: {{ ($json.confidence * 100).toFixed(0) }}%\n\n<@{{ $json.user_id }}> wrote: \"{{ $json.message_text }}\"\n\n*Response required:* IMMEDIATELY\n*Thread:* <{{ $json.thread_ts }}>"
+      }
+    },
+    {
+      "name": "Log to Analytics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [1650, 850],
+      "parameters": {
+        "method": "POST",
+        "url": "https://analytics.yourcompany.com/api/events",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "Bearer your-analytics-token" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "event", "value": "message_classified" },
+            { "name": "category", "value": "={{ $json.category }}" },
+            { "name": "confidence", "value": "={{ $json.confidence }}" },
+            { "name": "user_id", "value": "={{ $json.user_id }}" },
+            { "name": "timestamp", "value": "={{ $json.timestamp }}" },
+            { "name": "response_time_ms", "value": "={{ $json.responseTime }}" }
+          ]
+        },
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Slack Trigger": {
+      "main": [[{"node": "Validate Input", "type": "main", "index": 0}]]
+    },
+    "Error Handler": {
+      "main": [[{"node": "Log Invalid Message", "type": "main", "index": 0}]]
+    },
+    "Validate Input": {
+      "main": [
+        [{"node": "Extract Message", "type": "main", "index": 0}],
+        [{"node": "Log Invalid Message", "type": "main", "index": 0}]
+      ]
+    },
+    "Extract Message": {
+      "main": [[{"node": "LLM Classifier with Confidence", "type": "main", "index": 0}]]
+    },
+    "LLM Classifier with Confidence": {
+      "main": [[{"node": "Parse Classification", "type": "main", "index": 0}]]
+    },
+    "Parse Classification": {
+      "main": [[{"node": "Check Confidence", "type": "main", "index": 0}]]
+    },
+    "Check Confidence": {
+      "main": [
+        [{"node": "Route High Confidence", "type": "main", "index": 0}],
+        [{"node": "Queue for Human Review", "type": "main", "index": 0}]
+      ]
+    },
+    "Route High Confidence": {
+      "main": [
+        [{"node": "Notify Billing Team", "type": "main", "index": 0}],
+        [{"node": "Notify Technical Team", "type": "main", "index": 0}],
+        [{"node": "Notify Sales Team", "type": "main", "index": 0}],
+        [{"node": "Notify Urgent Channel", "type": "main", "index": 0}],
+        [{"node": "Log to Analytics", "type": "main", "index": 0}]
+      ]
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "Human Approval Step",
+  "type": "n8n-nodes-base.slack",
+  "parameters": {
+    "channel": "={{ $json.assigned_reviewer }}",
+    "text": "📝 *Review Required*\n\n*Lead*: {{ $json.name }} from {{ $json.company }}\n*Score*: {{ $json.score }}/100\n*Outreach Draft*:\n{{ $json.outreach_email }}\n\nReply with 'approve' to send or 'reject' to discard.",
+    "sendAsUser": true,
+    "actions": [
+      {
+        "name": "Approve",
+        "type": "button",
+        "value": "approve",
+        "style": "primary"
+      },
+      {
+        "name": "Reject",
+        "type": "button",
+        "value": "reject",
+        "style": "danger"
+      }
+    ]
+  }
+}

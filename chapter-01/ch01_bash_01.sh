@@ -1,0 +1,4 @@
+# .env
+OPENAI_API_KEY=sk-your-openai-key-here
+ANTHROPIC_API_KEY=sk-ant-your-anthropic-key-here
+GOOGLE_API_KEY=your-google-api-key-here

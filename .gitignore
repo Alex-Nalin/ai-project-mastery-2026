@@ -1,0 +1,36 @@
+# Secrets — NEVER commit real keys
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets.json
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+.ipynb_checkpoints/
+
+# Node
+node_modules/
+dist/
+.next/
+*.log
+
+# Data / models / vector stores
+*.sqlite
+*.db
+chroma/
+qdrant_storage/
+*.gguf
+*.bin
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

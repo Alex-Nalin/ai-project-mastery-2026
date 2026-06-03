@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "customer-database": {
+      "command": "python",
+      "args": ["/absolute/path/to/customer_mcp_server.py"],
+      "env": {
+        "PYTHONUNBUFFERED": "1"
+      }
+    }
+  }
+}

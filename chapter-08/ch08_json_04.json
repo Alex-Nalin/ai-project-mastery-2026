@@ -1,0 +1,181 @@
+{
+  "name": "AI Lead Qualification Pipeline v2",
+  "nodes": [
+    {
+      "name": "Webhook Receiver",
+      "type": "n8n-nodes-base.webhook",
+      "parameters": {
+        "path": "lead-qualification",
+        "responseMode": "onReceived",
+        "options": {
+          "responseData": "={{ $json }}",
+          "rawBody": true
+        }
+      },
+      "position": [250, 300]
+    },
+    {
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.set",
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "email",
+              "value": "={{ $json.email ? $json.email.toLowerCase().trim() : '' }}"
+            },
+            {
+              "name": "name",
+              "value": "={{ $json.name ? $json.name.trim() : '' }}"
+            },
+            {
+              "name": "company",
+              "value": "={{ $json.company ? $json.company.trim() : '' }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.message ? $json.message.trim() : '' }}"
+            }
+          ]
+        },
+        "options": {
+          "ignoreNullValues": true
+        }
+      },
+      "position": [450, 300]
+    },
+    {
+      "name": "AI Lead Scorer",
+      "type": "n8n-nodes-base.aiAgent",
+      "parameters": {
+        "model": "gpt-5.5-thinking",
+        "systemPrompt": "You are a lead qualification expert. Score leads based on budget, authority, need, and timeline.",
+        "input": "={{ $json }}",
+        "outputParsing": "json",
+        "options": {
+          "temperature": 0.1,
+          "maxTokens": 500
+        }
+      },
+      "position": [650, 300]
+    },
+    {
+      "name": "Check Score Threshold",
+      "type": "n8n-nodes-base.if",
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.score }}",
+              "operation": "largerEqual",
+              "value2": 30
+            }
+          ]
+        }
+      },
+      "position": [850, 300]
+    },
+    {
+      "name": "Clay Enrichment",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "url": "https://api.clay.com/v3/enrich",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "credentialType": "clayApi",
+        "sendBody": true,
+        "body": {
+          "email": "={{ $json.email }}",
+          "company": "={{ $json.company }}",
+          "include": ["linkedin_url", "company_size", "industry", "funding", "technologies_used"]
+        }
+      },
+      "position": [1050, 200]
+    },
+    {
+      "name": "AI Outreach Writer",
+      "type": "n8n-nodes-base.aiAgent",
+      "parameters": {
+        "model": "claude-opus-4.8",
+        "systemPrompt": "Write personalized sales emails based on lead data and enrichment.",
+        "input": "={{ $json }}",
+        "outputParsing": "text"
+      },
+      "position": [1050, 400]
+    },
+    {
+      "name": "HubSpot Integration",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "url": "https://api.hubapi.com/crm/v3/objects/contacts",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "credentialType": "hubspotApi",
+        "sendBody": true,
+        "body": {
+          "properties": {
+            "email": "={{ $json.email }}",
+            "firstname": "={{ $json.name.split(' ')[0] }}",
+            "lastname": "={{ $json.name.split(' ').slice(1).join(' ') }}",
+            "jobtitle": "={{ $json.job_title }}",
+            "company": "={{ $json.company }}",
+            "ai_lead_score": "={{ $json.score }}",
+            "ai_outreach_email": "={{ $json.outreach_email }}"
+          }
+        }
+      },
+      "position": [1250, 300]
+    },
+    {
+      "name": "Slack Notification",
+      "type": "n8n-nodes-base.slack",
+      "parameters": {
+        "channel": "#leads-qualified",
+        "text": "🚀 *New Qualified Lead*\nName: {{ $json.name }}\nCompany: {{ $json.company }}\nScore: {{ $json.score }}/100\nQualification: {{ $json.qualification }}\nOutreach drafted and ready for review."
+      },
+      "position": [1450, 300]
+    },
+    {
+      "name": "Low Score Log",
+      "type": "n8n-nodes-base.postgres",
+      "parameters": {
+        "operation": "insert",
+        "table": "unqualified_leads",
+        "columns": {
+          "email": "={{ $json.email }}",
+          "name": "={{ $json.name }}",
+          "score": "={{ $json.score }}",
+          "reasoning": "={{ $json.reasoning }}",
+          "timestamp": "={{ new Date().toISOString() }}"
+        }
+      },
+      "position": [1050, 600]
+    }
+  ],
+  "connections": {
+    "Webhook Receiver": {
+      "main": [[{"node": "Validate Input", "output": 0}]]
+    },
+    "Validate Input": {
+      "main": [[{"node": "AI Lead Scorer", "output": 0}]]
+    },
+    "AI Lead Scorer": {
+      "main": [[{"node": "Check Score Threshold", "output": 0}]]
+    },
+    "Check Score Threshold": {
+      "main": [
+        [{"node": "Clay Enrichment", "output": 0}],
+        [{"node": "Low Score Log", "output": 0}]
+      ]
+    },
+    "Clay Enrichment": {
+      "main": [[{"node": "AI Outreach Writer", "output": 0}]]
+    },
+    "AI Outreach Writer": {
+      "main": [[{"node": "HubSpot Integration", "output": 0}]]
+    },
+    "HubSpot Integration": {
+      "main": [[{"node": "Slack Notification", "output": 0}]]
+    }
+  }
+}

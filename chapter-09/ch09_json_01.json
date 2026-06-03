@@ -1,0 +1,28 @@
+{
+  "project_info": {
+    "client_name": "",
+    "project_title": "",
+    "content_type": ["blog_post", "newsletter", "social_media", "whitepaper", "case_study"],
+    "target_audience": "",
+    "tone": ["professional", "conversational", "technical", "persuasive", "educational"]
+  },
+  "content_specs": {
+    "word_count": 1500,
+    "key_points": [],
+    "target_keywords": [],
+    "competitor_urls": [],
+    "references": []
+  },
+  "brand_guidelines": {
+    "voice_characteristics": "",
+    "words_to_avoid": [],
+    "mandatory_phrases": [],
+    "formatting_preferences": ""
+  },
+  "seo_requirements": {
+    "primary_keyword": "",
+    "secondary_keywords": [],
+    "meta_description_required": true,
+    "internal_links": []
+  }
+}

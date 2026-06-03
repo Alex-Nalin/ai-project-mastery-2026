@@ -1,0 +1,13 @@
+{
+  "url": "https://api.openai.com/v1/images/generations",
+  "method": "POST",
+  "headers": {
+    "Authorization": "Bearer {{openaiApiKey}}"
+  },
+  "body": {
+    "model": "dall-e-3",
+    "prompt": "Professional, modern illustration for social media post about {{topic}}. Style: clean, minimalist, tech-forward.",
+    "n": 1,
+    "size": "1024x1024"
+  }
+}

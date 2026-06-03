@@ -1,0 +1,36 @@
+{
+  "name": "Error Handler",
+  "nodes": [
+    {
+      "name": "Error Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "parameters": {
+        "path": "error-handler",
+        "options": {}
+      }
+    },
+    {
+      "name": "Send Alert to Slack",
+      "type": "n8n-nodes-base.slack",
+      "parameters": {
+        "channel": "#workflow-errors",
+        "text": "⚠️ Workflow Error\n\nWorkflow: {{ $json.workflow.name }}\nNode: {{ $json.node.name }}\nError: {{ $json.error.message }}\nTimestamp: {{ $json.timestamp }}"
+      }
+    },
+    {
+      "name": "Log to Database",
+      "type": "n8n-nodes-base.postgres",
+      "parameters": {
+        "operation": "insert",
+        "table": "workflow_errors",
+        "columns": {
+          "workflow_name": "={{ $json.workflow.name }}",
+          "node_name": "={{ $json.node.name }}",
+          "error_message": "={{ $json.error.message }}",
+          "error_stack": "={{ $json.error.stack }}",
+          "timestamp": "={{ $json.timestamp }}"
+        }
+      }
+    }
+  ]
+}
