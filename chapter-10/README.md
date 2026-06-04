@@ -4,15 +4,15 @@ Code samples from this chapter of *AI Project Mastery 2026*.
 
 ## Files
 
-- `multi_agent_system.py`
-- `ch10_bash_01.sh`
-- `hybrid_edge_cloud.py`
-- `neuro_symbolic_fact_checker.py`
-- `mcp_server.py`
-- `connect_to_mcp.py`
 - `autonomous_research_agent.py`
-- `safety_guardrails.py`
+- `connect_to_mcp.py`
 - `cost_optimized_pipeline.py`
+- `hybrid_edge_cloud.py`
+- `install_prismml.sh`
+- `mcp_server.py`
+- `multi_agent_system.py`
+- `neuro_symbolic_fact_checker.py`
+- `safety_guardrails.py`
 
 ## Setup
 

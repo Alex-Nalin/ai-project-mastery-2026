@@ -5,25 +5,25 @@ Code samples from this chapter of *AI Project Mastery 2026*.
 ## Files
 
 - `agents.py`
-- `tasks.py`
-- `crew.py`
-- `requirements.txt`
-- `run_research.py`
-- `graph.py`
-- `run_agent.py`
-- `setup_database.py`
-- `ch03_json_01.json`
-- `ch03_bash_01.sh`
-- `ch03_bash_02.sh`
-- `ch03_bash_03.sh`
 - `agents_2.py`
-- `tasks_2.py`
+- `crew.py`
 - `crew_2.py`
-- `run.py`
+- `docker_deployment_recommended_for_produc.sh`
 - `enhanced_graph.py`
-- `memory.py`
 - `enhanced_graph_2.py`
-- `ch03_json_02.json`
+- `graph.py`
+- `install_dependencies.sh`
+- `memory.py`
+- `production_slack_router.json`
+- `required_at_least_one_llm_provider.sh`
+- `requirements.txt`
+- `run.py`
+- `run_agent.py`
+- `run_research.py`
+- `setup_database.py`
+- `slack_message_router.json`
+- `tasks.py`
+- `tasks_2.py`
 
 ## Setup
 

@@ -4,27 +4,27 @@ Code samples from this chapter of *AI Project Mastery 2026*.
 
 ## Files
 
-- `ch09_bash_01.sh`
-- `ch09_bash_02.sh`
-- `ch09_sql_01.sql`
-- `ch09_typescript_01.ts`
-- `ch09_typescript_02.ts`
-- `ch09_typescript_03.ts`
-- `ch09_tsx_01.tsx`
-- `ch09_typescript_04.ts`
-- `ch09_typescript_05.ts`
-- `ch09_typescript_06.ts`
-- `ch09_tsx_02.tsx`
-- `ch09_bash_03.sh`
-- `ch09_typescript_07.ts`
-- `ch09_json_01.json`
-- `ch09_python_01.py`
-- `ch09_python_02.py`
-- `ch09_python_03.py`
-- `ch09_python_04.py`
-- `ch09_python_05.py`
-- `ch09_bash_04.sh`
-- `ch09_python_06.py`
+- `analyze_document.py`
+- `capture_lead.py`
+- `content_brief.py`
+- `create_next_js_project_with_typescript_a.sh`
+- `delivery_manager.py`
+- `install_vercel_cli.sh`
+- `review_status.py`
+- `step_10_stripe_webhook_handler.ts`
+- `step_1_the_intake_form.json`
+- `step_2_configuration_for_hugging_face_sp.sh`
+- `step_3_database_schema_supabase.sql`
+- `step_4_supabase_client_setup.ts`
+- `step_4_supabase_client_setup_2.ts`
+- `step_5_authentication_setup.ts`
+- `step_5_authentication_setup.tsx`
+- `step_6_stripe_integration.ts`
+- `step_6_stripe_integration_2.ts`
+- `step_7_the_core_ai_feature.ts`
+- `step_8_the_dashboard.tsx`
+- `supabase.sh`
+- `writing_service_pipeline.py`
 
 ## Setup
 

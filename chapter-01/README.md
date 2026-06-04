@@ -4,22 +4,22 @@ Code samples from this chapter of *AI Project Mastery 2026*.
 
 ## Files
 
-- `ch01_bash_01.sh`
-- `ch01_bash_02.sh`
-- `ch01_bash_03.sh`
-- `base.py`
-- `openai_wrapper.py`
 - `anthropic_wrapper.py`
-- `google_wrapper.py`
+- `base.py`
 - `comparator.py`
-- `main.py`
-- `ch01_bash_04.sh`
-- `rate_limiter.py`
-- `voting_system.py`
 - `decision_engine.py`
-- `token_optimizer.py`
+- `env.sh`
+- `env_template.sh`
+- `google_wrapper.py`
+- `main.py`
 - `model_cascade.py`
-- `ch01_bash_05.sh`
+- `openai_wrapper.py`
+- `rate_limiter.py`
+- `step_1_set_up_the_project_structure.sh`
+- `step_2_install_dependencies.sh`
+- `step_9_run_and_interpret_results.sh`
+- `token_optimizer.py`
+- `voting_system.py`
 
 ## Setup
 

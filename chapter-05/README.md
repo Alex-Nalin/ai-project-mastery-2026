@@ -4,22 +4,22 @@ Code samples from this chapter of *AI Project Mastery 2026*.
 
 ## Files
 
-- `ch05_bash_01.sh`
-- `ch05_python_01.py`
-- `ch05_python_02.py`
-- `ch05_python_03.py`
-- `ch05_python_04.py`
-- `ch05_python_05.py`
-- `ch05_python_06.py`
-- `ch05_python_07.py`
-- `ch05_python_08.py`
-- `ch05_python_09.py`
-- `ch05_python_10.py`
-- `ch05_python_11.py`
-- `ch05_python_12.py`
-- `ch05_python_13.py`
-- `ch05_python_14.py`
-- `ch05_python_15.py`
+- `avatar_explainer_pipeline.py`
+- `comfy_u_i_client.py`
+- `dall_e_3_via_api_the_reliable_workhorse.py`
+- `eleven_labs_voice_agent.py`
+- `eleven_labs_voice_cloner.py`
+- `generate_with_controlnet.py`
+- `generate_with_flux.py`
+- `grok_imagine_client.py`
+- `higgsfield_client.py`
+- `product_photography_pipeline.py`
+- `runway_gen3_client.py`
+- `streaming_tts_for_real_time_applications.py`
+- `style_reference_from_a_specific_photogra.sh`
+- `synthesia_client.py`
+- `train_style_lora.py`
+- `you_tube_shorts_pipeline.py`
 
 ## Setup
 

@@ -4,28 +4,28 @@ Code samples from this chapter of *AI Project Mastery 2026*.
 
 ## Files
 
-- `ch08_yaml_01.yaml`
-- `ch08_bash_01.sh`
-- `ch08_bash_02.sh`
-- `ch08_bash_03.sh`
-- `ch08_python_01.py`
-- `ch08_json_01.json`
-- `ch08_json_02.json`
-- `ch08_python_02.py`
-- `ch08_json_03.json`
-- `ch08_python_03.py`
-- `ch08_python_04.py`
-- `ch08_python_05.py`
-- `ch08_python_06.py`
-- `ch08_json_04.json`
-- `ch08_sql_01.sql`
-- `ch08_python_07.py`
-- `ch08_python_08.py`
-- `ch08_python_09.py`
-- `ch08_python_10.py`
-- `ch08_python_11.py`
-- `ch08_python_12.py`
-- `ch08_json_05.json`
+- `ai_email_triage.json`
+- `ai_lead_qualification_pipeline_v2.json`
+- `building_with_n8n.json`
+- `building_with_n8n.py`
+- `building_with_n8n_2.py`
+- `building_with_n8n_3.py`
+- `building_with_n8n_4.py`
+- `building_with_n8n_5.py`
+- `docker-compose.yaml`
+- `docker_deployment_the_right_way.sh`
+- `docker_deployment_the_right_way_2.sh`
+- `docker_deployment_the_right_way_3.sh`
+- `error_handler.json`
+- `error_recovery_and_retry_logic.py`
+- `generate_idempotency_key.py`
+- `human_approval_step.json`
+- `lead_data.py`
+- `monitoring_and_logging.py`
+- `monitoring_and_logging.sql`
+- `prompt_version_tracker.py`
+- `truncate_for_llm.py`
+- `webhook_payload.py`
 
 ## Setup
 
