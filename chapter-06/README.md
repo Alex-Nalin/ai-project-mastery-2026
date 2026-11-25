@@ -25,8 +25,6 @@ Code samples from this chapter of *AI Project Mastery 2026*.
 - `pull_optimized_code_models.sh`
 - `query_request.py`
 - `start_the_server.sh`
-- `step_3_build_a_custom_integration.py`
-- `step_3_build_a_custom_integration_2.py`
 - `the_model_library_what_s_available_in_20.sh`
 - `the_model_library_what_s_available_in_20_2.sh`
 - `the_model_library_what_s_available_in_20_3.sh`

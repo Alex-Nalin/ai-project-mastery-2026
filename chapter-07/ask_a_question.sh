@@ -1,8 +1,4 @@
 # Ask a question
-curl -X POST http://
-
-```bash
-# Ask a question
 curl -X POST http://localhost:8000/query \
   -H "Content-Type: application/json" \
   -d '{

@@ -152,7 +152,6 @@ class CostOptimizedPipeline:
                     "total_latency": 0.0
                 }
             by_source[entry.source]["count"] += 1
-```python
             by_source[entry.source]["total_cost"] += entry.cost
             by_source[entry.source]["total_latency"] += entry.latency_ms
 
