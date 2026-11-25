@@ -136,3 +136,69 @@ File: {analysis['file_path']}
 Source Code:
 ```python
 {source_code}
+```
+
+Analysis:
+- Functions: {[f['name'] for f in analysis['functions']]}
+- Classes: {[c['name'] for c in analysis['classes']]}
+- Imports: {analysis['imports']}
+
+Generate comprehensive tests following the rules above."""
+
+        response = self.client.messages.create(
+            model="claude-opus-4-8-20260415",
+            max_tokens=4000,
+            temperature=0.3,
+            system=system_prompt,
+            messages=[{"role": "user", "content": user_prompt}],
+        )
+
+        test_code = response.content[0].text
+
+        # Format with black
+        try:
+            test_code = black.format_str(test_code, mode=black.Mode())
+        except:
+            pass  # If formatting fails, use raw output
+
+        # Write to file
+        if output_file:
+            os.makedirs(os.path.dirname(output_file), exist_ok=True)
+            with open(output_file, "w") as f:
+                f.write(test_code)
+            print(f"Tests written to {output_file}")
+
+        return test_code
+
+
+async def main():
+    import argparse
+
+    parser = argparse.ArgumentParser(description="AI-powered test generator")
+    parser.add_argument("source", help="Source file to generate tests for")
+    parser.add_argument("--output", "-o", help="Output file for tests")
+    parser.add_argument("--api-key", help="Anthropic API key")
+
+    args = parser.parse_args()
+
+    generator = TestGenerator(api_key=args.api_key)
+
+    # Generate output filename if not specified
+    output_file = args.output
+    if not output_file:
+        source_path = Path(args.source)
+        test_dir = source_path.parent / "tests"
+        test_file = test_dir / f"test_{source_path.name}"
+        output_file = str(test_file)
+
+    test_code = await generator.generate_tests(
+        source_file=args.source,
+        output_file=output_file,
+    )
+
+    print(f"\nGenerated {len(test_code.splitlines())} lines of tests")
+
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())

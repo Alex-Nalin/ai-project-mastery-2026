@@ -1,6 +1,3 @@
-async def
-
-```python
 async def create_hubspot_contact(lead: dict, enrichment: dict, score: int, outreach_email: str) -> dict:
     """Create or update contact in HubSpot with AI-generated data."""
     async with httpx.AsyncClient() as client:

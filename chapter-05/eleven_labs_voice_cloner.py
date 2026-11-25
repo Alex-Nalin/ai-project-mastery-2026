@@ -8,11 +8,6 @@ class ElevenLabsVoiceCloner:
         self.api_key = api_key
         self.base_url = "https://api.elevenlabs.io/v1"
     
-   
-
-```python
-        self.base_url = "https://api.elevenlabs.io/v1"
-    
     def clone_voice(
         self,
         audio_files: list,

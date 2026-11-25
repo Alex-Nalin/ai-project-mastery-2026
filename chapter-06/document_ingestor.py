@@ -17,9 +17,6 @@ class DocumentIngestor:
     ):
         self.qdrant = QdrantClient(url=qdrant_url)
         self.collection_name = collection_name
-
-
-```python
         self.embedding_model = SentenceTransformer(embedding_model)
         
         # Create collection if it doesn't exist

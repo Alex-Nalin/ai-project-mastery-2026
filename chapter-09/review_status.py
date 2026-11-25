@@ -18,9 +18,6 @@ class ReviewStatus(BaseModel):
 class ContentReviewer:
     """Manages the human review workflow"""
     
-    def __init__(self, notion
-
-```python
     def __init__(self, notion_api_key: str, database_id: str):
         self.notion_api_key = notion_api_key
         self.database_id = database_id

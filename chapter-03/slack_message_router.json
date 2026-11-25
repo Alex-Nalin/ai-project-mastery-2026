@@ -145,9 +145,6 @@
           "valueInputOption": "USER_ENTERED"
         },
         "columns": {
-          "mappingMode": "define
-
-```json
           "mappingMode": "defineBelow",
           "values": {
             "string": [
